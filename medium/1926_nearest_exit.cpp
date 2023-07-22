@@ -4,37 +4,46 @@ using namespace std;
 class Solution
 {
 public:
-    int getans(vector<vector<char>> &maze,vector<vector<bool>> &visited, int m, int n, int currow, int curcol, int ans)
-    {
-        if ((curcol >= n || curcol < 0) || (currow >= m || currow < 0))
-        {
-            return ans;
-        }
-        if (maze[currow][curcol] == '+')
-        {
-            ans = INT_MAX;
-            return ans;
-        }
-        if (visited[currow][curcol])
-        {
-            ans = INT_MAX;
-            return ans;
-        }
-        visited[currow][curcol] = 1;
-        int a = getans(maze,visited, m, n, currow, curcol + 1, ans + 1);
-        int b = getans(maze,visited, m, n, currow + 1, curcol, ans + 1);
-        int c = getans(maze,visited, m, n, currow - 1, curcol, ans + 1);
-        int d = getans(maze,visited, m, n, currow, curcol - 1, ans + 1);
-        return min({a, b, c, d});
-    }
     int nearestExit(vector<vector<char>> &maze, vector<int> &entrance)
     {
-        vector<vector<bool>> visited(101, vector<bool>(101, 0));
-        int steps = getans(maze, visited, maze.size(), maze[0].size(), entrance[0], entrance[1], 0);
+        int m = maze.size();
+        int n = maze[0].size();
 
-        if (steps < INT_MAX)
+        int currrow = entrance[0];
+        int currcol = entrance[1];
+
+        queue<pair<int, int>> q;
+        q.push({currrow, currcol});
+        int steps = 1;
+        maze[currrow][currcol] = '+';
+        vector<vector<int>> offsets = {{0, 1}, {1, 0}, {0, -1}, {-1, 0}};
+
+        while (!q.empty())
         {
-            return steps;
+            int x = q.size();
+            for (int _ = 0; _ < x; _++)
+            {
+                pair<int, int> t = q.front();
+                q.pop();
+
+                for (int k = 0; k < 4; k++)
+                {
+                    int r = t.first + offsets[k][0], c = t.second + offsets[k][1];
+
+                    if (r < 0 || c < 0 || r >= m || c >= n || maze[r][c] == '+')
+                    {
+                        continue;
+                    }
+
+                    if (r == 0 || r == m - 1 || c == 0 || c == n - 1)
+                    {
+                        return steps;
+                    }
+                    maze[r][c]='+';
+                    q.push({r, c});
+                }
+            }
+            steps++;
         }
         return -1;
     }
